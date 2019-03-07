@@ -1598,6 +1598,9 @@ astropy.nddata
 astropy.stats
 ^^^^^^^^^^^^^
 
+- Fixed issue in ``bayesian_blocks`` when called with the ``ncp_prior``
+  keyword. [#8339]
+
 astropy.table
 ^^^^^^^^^^^^^
 
