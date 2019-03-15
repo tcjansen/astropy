@@ -407,8 +407,6 @@ astropy.uncertainty
 astropy.units
 ^^^^^^^^^^^^^
 
-- Fix parsing of numerical powers in FITS-compatible units. [#8251]
-
 astropy.utils
 ^^^^^^^^^^^^^
 
