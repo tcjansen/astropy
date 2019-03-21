@@ -105,7 +105,7 @@ features are needed. `astropy` will import even if these dependencies are not
 installed.
 
 Installing `astropy`
-==================
+====================
 
 Using pip
 ---------
@@ -167,7 +167,7 @@ for the list of available versions with ``conda search astropy``.
 .. _testing_installed_astropy:
 
 Testing an Installed `astropy`
-----------------------------
+------------------------------
 
 The easiest way to test if your installed version of `astropy` is running
 correctly is to use the :ref:`astropy.test()` function::
@@ -333,7 +333,7 @@ The C libraries currently bundled with `astropy` include:
 
 
 Installing `astropy` into CASA
-----------------------------
+-------------------------------
 
 If you want to be able to use `astropy` inside `CASA
 <https://casa.nrao.edu/>`_, the easiest way is to do so from inside CASA.
