@@ -46,6 +46,9 @@ astropy.modeling
 astropy.nddata
 ^^^^^^^^^^^^^^
 
+- Fixed bug in reading multi-extension FITS files written by earlier versions
+  of ``CCDData``. [#8534]
+
 astropy.samp
 ^^^^^^^^^^^^
 
