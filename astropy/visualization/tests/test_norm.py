@@ -142,8 +142,9 @@ class TestImageScaling:
 
     def test_log(self):
         """Test log10 scaling."""
-        norm = simple_norm(DATA2, stretch='log')
-        ref = np.log10(1000 * DATA2SCL + 1.0) / np.log10(1001.0)
+        a = 1000.0
+        norm = simple_norm(DATA2, stretch='log', log_a=a)
+        ref = np.log10(a * DATA2SCL + 1.0) / np.log10(a + 1.0)
         assert_allclose(norm(DATA2), ref, atol=0, rtol=1.e-5)
 
     def test_asinh(self):
