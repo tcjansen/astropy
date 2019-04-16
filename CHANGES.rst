@@ -129,6 +129,9 @@ astropy.utils
 astropy.visualization
 ^^^^^^^^^^^^^^^^^^^^^
 
+- Added log_a as an argument to simple_norm(), making a logarithmic stretch 
+  with mpl_normalize customizable.
+
 astropy.wcs
 ^^^^^^^^^^^
 
