@@ -104,6 +104,11 @@ astropy.table
 - Improved Table slicing performance with internal implementation changes
   related to column attribute access and certain input validation. [#8493]
 
+- Improved ``Table.sort()`` performance by removing ``self[keys]`` from code
+  which is creating deep copies of ``meta`` attribute and adding a new keyword 
+  ``names`` in ``get_index()`` to get index by using a list or tuple containing 
+  names of columns. [#8570] 
+
 astropy.tests
 ^^^^^^^^^^^^^
 
@@ -199,6 +204,9 @@ astropy.table
   and instead just directly assigns the ``new_meta`` object reference. Changed
   Table initialization so that input ``meta`` is copied only if ``copy=True``.
   [#8404]
+
+- Added a keyword ``names`` in ``Table.as_array()``.  If provided this specifies
+  a list of column names to include for the returned structured array. [#8532]
 
 astropy.tests
 ^^^^^^^^^^^^^

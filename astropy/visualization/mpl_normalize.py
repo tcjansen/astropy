@@ -130,9 +130,9 @@ class ImageNormalize(Normalize):
         return values_norm * (self.vmax - self.vmin) + self.vmin
 
 
-def simple_norm(data, stretch='linear', power=1.0, asinh_a=0.1, log_a=1000,
-                min_cut=None, max_cut=None, min_percent=None, max_percent=None,
-                percent=None, clip=True):
+def simple_norm(data, stretch='linear', power=1.0, asinh_a=0.1,
+                min_cut=None, max_cut=None, min_percent=None,
+                max_percent=None, percent=None, clip=True):
     """
     Return a Normalization class that can be used for displaying images
     with Matplotlib.
@@ -160,9 +160,6 @@ def simple_norm(data, stretch='linear', power=1.0, asinh_a=0.1, log_a=1000,
         transitions from linear to logarithmic behavior, expressed as a
         fraction of the normalized image.  Must be in the range between
         0 and 1.  The default is 0.1.
-        
-    log_a : float, optional
-        For ``stretch='log'``. The default is 1000.
 
     min_cut : float, optional
         The pixel value of the minimum cut level.  Data values less than
@@ -222,7 +219,7 @@ def simple_norm(data, stretch='linear', power=1.0, asinh_a=0.1, log_a=1000,
     elif stretch == 'power':
         stretch = PowerStretch(power)
     elif stretch == 'log':
-        stretch = LogStretch(log_a)
+        stretch = LogStretch()
     elif stretch == 'asinh':
         stretch = AsinhStretch(asinh_a)
     else:
