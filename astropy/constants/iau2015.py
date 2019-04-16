@@ -36,6 +36,13 @@ kpc = IAU2015('kpc', "Kiloparsec",
                1000. * au.uncertainty / np.tan(np.radians(1. / 3600.)),
                "Derived from au", system='si')
 
+# Light-year
+lyr = IAU2015('lyr', "Light-year",
+               c.value * 31.5576e6, 'm',
+               c.uncertainty * 31.5576e6,
+               "Derived from c and the IAU definition of 1 (julian) year", 
+               system='si')
+
 # Luminosity
 L_bol0 = IAU2015('L_bol0', "Luminosity for absolute bolometric magnitude 0",
                   3.0128e28, "W", 0.0, "IAU 2015 Resolution B 2", system='si')
