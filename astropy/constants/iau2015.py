@@ -7,7 +7,7 @@ for a complete listing of constants defined in Astropy.
 import numpy as np
 
 from .constant import Constant
-from .codata2014 import G
+from .codata2014 import G,c
 
 # ASTRONOMICAL CONSTANTS
 
@@ -35,6 +35,13 @@ kpc = IAU2015('kpc', "Kiloparsec",
                1000. * au.value / np.tan(np.radians(1. / 3600.)), 'm',
                1000. * au.uncertainty / np.tan(np.radians(1. / 3600.)),
                "Derived from au", system='si')
+
+# Light-year
+lyr = IAU2015('lyr', "Light-year",
+               c.value * 31.5576e6, 'm',
+               c.uncertainty * 31.5576e6,
+               "Derived from c and the IAU definition of 1 (Julian) year", 
+               system='si')
 
 # Luminosity
 L_bol0 = IAU2015('L_bol0', "Luminosity for absolute bolometric magnitude 0",
