@@ -10,6 +10,8 @@ astropy.config
 astropy.constants
 ^^^^^^^^^^^^^^^^^
 
+- ``Light-year`` is now included as a constant.
+
 astropy.convolution
 ^^^^^^^^^^^^^^^^^^^
 
