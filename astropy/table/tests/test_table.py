@@ -837,7 +837,11 @@ class TestRemove(SetupData):
         self._setup(table_types)
         self.t.remove_columns('a')
         assert self.t.columns.keys() == []
-        assert self.t.as_array() is None
+        assert self.t.as_array().size == 0
+        # Regression test for gh-8640
+        assert not self.t
+        assert isinstance(self.t == None, np.ndarray)
+        assert (self.t == None).size == 0
 
     def test_2(self, table_types):
         self._setup(table_types)
@@ -948,7 +952,11 @@ class TestRemove(SetupData):
         self._setup(table_types)
         del self.t['a']
         assert self.t.columns.keys() == []
-        assert self.t.as_array() is None
+        assert self.t.as_array().size == 0
+        # Regression test for gh-8640
+        assert not self.t
+        assert isinstance(self.t == None, np.ndarray)
+        assert (self.t == None).size == 0
 
     def test_delitem2(self, table_types):
         self._setup(table_types)
@@ -974,7 +982,11 @@ class TestKeep(SetupData):
         t = table_types.Table([self.a, self.b])
         t.keep_columns([])
         assert t.columns.keys() == []
-        assert t.as_array() is None
+        assert t.as_array().size == 0
+        # Regression test for gh-8640
+        assert not t
+        assert isinstance(t == None, np.ndarray)
+        assert (t == None).size == 0
 
     def test_2(self, table_types):
         self._setup(table_types)
@@ -1018,6 +1030,18 @@ class TestRename(SetupData):
         assert np.all(t['c'] == np.array([1, 2, 3]))
         assert np.all(t['a'] == np.array([4, 5, 6]))
 
+    def test_rename_columns(self, table_types):
+        self._setup(table_types)
+        t = table_types.Table([self.a, self.b, self.c])
+        t.rename_columns(('a', 'b', 'c'), ('aa', 'bb', 'cc'))
+        assert t.colnames == ['aa', 'bb', 'cc']
+        t.rename_columns(['bb', 'cc'], ['b', 'c'])
+        assert t.colnames == ['aa', 'b', 'c']
+        with pytest.raises(TypeError):
+            t.rename_columns(('aa'), ['a'])
+        with pytest.raises(ValueError):
+            t.rename_columns(['a'], ['b', 'c'])
+
 
 @pytest.mark.usefixtures('table_types')
 class TestSort():
@@ -1042,6 +1066,26 @@ class TestSort():
                                           [3, 4],
                                           [1, 2]]))
 
+    def test_single_reverse(self, table_types):
+        t = table_types.Table()
+        t.add_column(table_types.Column(name='a', data=[2, 1, 3]))
+        t.add_column(table_types.Column(name='b', data=[6, 5, 4]))
+        t.add_column(table_types.Column(name='c', data=[(1, 2), (3, 4), (4, 5)]))
+        assert np.all(t['a'] == np.array([2, 1, 3]))
+        assert np.all(t['b'] == np.array([6, 5, 4]))
+        t.sort('a', reverse=True)
+        assert np.all(t['a'] == np.array([3, 2, 1]))
+        assert np.all(t['b'] == np.array([4, 6, 5]))
+        assert np.all(t['c'] == np.array([[4, 5],
+                                          [1, 2],
+                                          [3, 4]]))
+        t.sort('b', reverse=True)
+        assert np.all(t['a'] == np.array([2, 1, 3]))
+        assert np.all(t['b'] == np.array([6, 5, 4]))
+        assert np.all(t['c'] == np.array([[1, 2],
+                                          [3, 4],
+                                          [4, 5]]))
+
     def test_single_big(self, table_types):
         """Sort a big-ish table with a non-trivial sort order"""
         x = np.arange(10000)
@@ -1052,9 +1096,10 @@ class TestSort():
         assert np.all(t['x'] == x[idx])
         assert np.all(t['y'] == y[idx])
 
-    def test_empty(self, table_types):
+    @pytest.mark.parametrize('reverse', [True, False])
+    def test_empty_reverse(self, table_types, reverse):
         t = table_types.Table([[], []], dtype=['f4', 'U1'])
-        t.sort('col1')
+        t.sort('col1', reverse=reverse)
 
     def test_multiple(self, table_types):
         t = table_types.Table()
@@ -1071,6 +1116,22 @@ class TestSort():
         t.sort(('a', 'b'))
         assert np.all(t['a'] == np.array([1, 1, 2, 2, 3, 3]))
         assert np.all(t['b'] == np.array([4, 5, 3, 6, 4, 5]))
+
+    def test_multiple_reverse(self, table_types):
+        t = table_types.Table()
+        t.add_column(table_types.Column(name='a', data=[2, 1, 3, 2, 3, 1]))
+        t.add_column(table_types.Column(name='b', data=[6, 5, 4, 3, 5, 4]))
+        assert np.all(t['a'] == np.array([2, 1, 3, 2, 3, 1]))
+        assert np.all(t['b'] == np.array([6, 5, 4, 3, 5, 4]))
+        t.sort(['a', 'b'], reverse=True)
+        assert np.all(t['a'] == np.array([3, 3, 2, 2, 1, 1]))
+        assert np.all(t['b'] == np.array([5, 4, 6, 3, 5, 4]))
+        t.sort(['b', 'a'], reverse=True)
+        assert np.all(t['a'] == np.array([2, 3, 1, 3, 1, 2]))
+        assert np.all(t['b'] == np.array([6, 5, 5, 4, 4, 3]))
+        t.sort(('a', 'b'), reverse=True)
+        assert np.all(t['a'] == np.array([3, 3, 2, 2, 1, 1]))
+        assert np.all(t['b'] == np.array([5, 4, 6, 3, 5, 4]))
 
     def test_multiple_with_bytes(self, table_types):
         t = table_types.Table()
@@ -1110,6 +1171,19 @@ class TestSort():
         assert np.all(t['a'][i0] == t['a'][i1])
         i0 = t.argsort(['a', 'b'])
         i1 = t.as_array().argsort(order=['a', 'b'])
+        assert np.all(t['a'][i0] == t['a'][i1])
+        assert np.all(t['b'][i0] == t['b'][i1])
+
+    def test_argsort_reverse(self, table_types):
+        t = table_types.Table()
+        t.add_column(table_types.Column(name='a', data=[2, 1, 3, 2, 3, 1]))
+        t.add_column(table_types.Column(name='b', data=[6, 5, 4, 3, 5, 4]))
+        assert np.all(t.argsort(reverse=True) == np.array([4, 2, 0, 3, 1, 5]))
+        i0 = t.argsort('a', reverse=True)
+        i1 = np.array([4, 2, 3, 0, 5, 1])
+        assert np.all(t['a'][i0] == t['a'][i1])
+        i0 = t.argsort(['a', 'b'], reverse=True)
+        i1 = np.array([4, 2, 0, 3, 1, 5])
         assert np.all(t['a'][i0] == t['a'][i1])
         assert np.all(t['b'][i0] == t['b'][i1])
 
@@ -1654,7 +1728,9 @@ class TestPandas:
 
         with pytest.raises(ValueError) as exc:
             t.to_pandas()
-        assert exc.value.args[0] == "Cannot convert a table with multi-dimensional columns to a pandas DataFrame"
+        assert (exc.value.args[0] ==
+            "Cannot convert a table with multi-dimensional columns "
+            "to a pandas DataFrame. Offending columns are: ['b']")
 
     def test_mixin_pandas(self):
         t = table.QTable()
@@ -1693,8 +1769,8 @@ class TestPandas:
         import pandas as pd
         row_index = pd.RangeIndex(0, 2, 1)
         tm_index = pd.DatetimeIndex(['1998-01-01', '2002-01-01'],
-                                                   dtype='datetime64[ns]',
-                                                   name='tm', freq=None)
+                                    dtype='datetime64[ns]',
+                                    name='tm', freq=None)
 
         tm = Time([1998, 2002], format='jyear')
         x = [1, 2]
@@ -1720,7 +1796,6 @@ class TestPandas:
         with pytest.raises(ValueError) as err:
             t.to_pandas(index='not a column')
         assert 'index must be None, False' in str(err)
-
 
     def test_mixin_pandas_masked(self):
         tm = Time([1, 2, 3], format='cxcsec')

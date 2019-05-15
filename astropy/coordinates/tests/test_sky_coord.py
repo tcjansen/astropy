@@ -32,7 +32,7 @@ RA = 1.0 * u.deg
 DEC = 2.0 * u.deg
 C_ICRS = ICRS(RA, DEC)
 C_FK5 = C_ICRS.transform_to(FK5)
-J2001 = Time('J2001', scale='utc')
+J2001 = Time('J2001')
 
 
 def allclose(a, b, rtol=0.0, atol=None):
@@ -626,7 +626,7 @@ def test_directional_offset_by():
                 SkyCoord(np.linspace(359,0,npoints),np.linspace(-90, 90,npoints),
                          unit=u.deg, frame='icrs'),
                 SkyCoord(np.linspace(-3,3,npoints),np.linspace(-90, 90,npoints),
-                         unit=(u.rad, u.deg), frame='barycentrictrueecliptic')]:
+                         unit=(u.rad, u.deg), frame='barycentricmeanecliptic')]:
         for sc2 in [SkyCoord(5*u.deg,10*u.deg),
                     SkyCoord(np.linspace(0, 359, npoints), np.linspace(-90, 90, npoints),
                              unit=u.deg, frame='galactic')]:
@@ -1229,7 +1229,7 @@ def test_constellations_with_nameresolve():
 
     # ok, but at least some of the others do make sense...
     assert SkyCoord.from_name('Coma Cluster').get_constellation(short_name=True) == 'Com'
-    assert SkyCoord.from_name('UMa II').get_constellation() == 'Ursa Major'
+    assert SkyCoord.from_name('Orion Nebula').get_constellation() == 'Orion'
     assert SkyCoord.from_name('Triangulum Galaxy').get_constellation() == 'Triangulum'
 
 

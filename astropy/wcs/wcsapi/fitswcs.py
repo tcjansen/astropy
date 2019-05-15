@@ -11,8 +11,9 @@ from astropy import units as u
 
 from .low_level_api import BaseLowLevelWCS
 from .high_level_api import HighLevelWCSMixin
+from .sliced_low_level_wcs import SlicedLowLevelWCS
 
-__all__ = ['custom_ctype_to_ucd_mapping', 'FITSWCSAPIMixin']
+__all__ = ['custom_ctype_to_ucd_mapping', 'SlicedFITSWCS', 'FITSWCSAPIMixin']
 
 # Mapping from CTYPE axis name to UCD1
 
@@ -105,6 +106,10 @@ class custom_ctype_to_ucd_mapping:
 
     def __exit__(self, type, value, tb):
         CTYPE_TO_UCD1_CUSTOM.remove(self.mapping)
+
+
+class SlicedFITSWCS(SlicedLowLevelWCS, HighLevelWCSMixin):
+    pass
 
 
 class FITSWCSAPIMixin(BaseLowLevelWCS, HighLevelWCSMixin):
@@ -231,18 +236,21 @@ class FITSWCSAPIMixin(BaseLowLevelWCS, HighLevelWCSMixin):
         return matrix
 
     def pixel_to_world_values(self, *pixel_arrays):
-        return self.all_pix2world(*pixel_arrays, 0)
+        world = self.all_pix2world(*pixel_arrays, 0)
+        return world[0] if self.world_n_dim == 1 else world
 
     def array_index_to_world_values(self, *indices):
-        return self.all_pix2world(*indices[::-1], 0)
+        world = self.all_pix2world(*indices[::-1], 0)
+        return world[0] if self.world_n_dim == 1 else world
 
     def world_to_pixel_values(self, *world_arrays):
-        return self.all_world2pix(*world_arrays, 0)
+        pixel = self.all_world2pix(*world_arrays, 0)
+        return pixel[0] if self.pixel_n_dim == 1 else pixel
 
     def world_to_array_index_values(self, *world_arrays):
         pixel_arrays = self.all_world2pix(*world_arrays, 0)[::-1]
         array_indices = tuple(np.asarray(np.floor(pixel + 0.5), dtype=np.int) for pixel in pixel_arrays)
-        return array_indices
+        return array_indices[0] if self.pixel_n_dim == 1 else array_indices
 
     @property
     def world_axis_object_components(self):

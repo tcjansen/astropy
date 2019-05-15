@@ -13,6 +13,7 @@ from astropy import units as u
 from astropy.coordinates import SkyCoord, Latitude, Longitude, Angle, EarthLocation
 from astropy.time import Time, TimeDelta
 from astropy.units.quantity import QuantityInfo
+from astropy.utils.exceptions import AstropyUserWarning
 
 try:
     import h5py
@@ -53,6 +54,35 @@ def test_write_nopath(tmpdir):
 
 
 @pytest.mark.skipif('not HAS_H5PY')
+def test_write_nopath(tmpdir):
+    test_file = str(tmpdir.join('test.hdf5'))
+    t1 = Table()
+    t1.add_column(Column(name='a', data=[1, 2, 3]))
+
+    with catch_warnings() as warns:
+        t1.write(test_file)
+
+    assert np.any([str(w.message).startswith(
+        "table path was not set via the path= argument")
+                   for w in warns])
+    t1 = Table.read(test_file, path='__astropy_table__')
+
+
+@pytest.mark.skipif('not HAS_H5PY')
+def test_write_nopath_nonempty(tmpdir):
+    test_file = str(tmpdir.join('test.hdf5'))
+    t1 = Table()
+    t1.add_column(Column(name='a', data=[1, 2, 3]))
+
+    t1.write(test_file, path='bubu')
+
+    with pytest.raises(ValueError) as exc:
+        t1.write(test_file, append=True)
+
+    assert 'table path should always be set via the path=' in exc.value.args[0]
+
+
+@pytest.mark.skipif('not HAS_H5PY')
 def test_read_notable_nopath(tmpdir):
     test_file = str(tmpdir.join('test.hdf5'))
     h5py.File(test_file, 'w').close()  # create empty file
@@ -66,8 +96,27 @@ def test_read_nopath(tmpdir):
     test_file = str(tmpdir.join('test.hdf5'))
     t1 = Table()
     t1.add_column(Column(name='a', data=[1, 2, 3]))
-    t1.write(test_file, path='the_table')
-    t2 = Table.read(test_file)
+    t1.write(test_file, path="the_table")
+    with catch_warnings(AstropyUserWarning) as warning_lines:
+        t2 = Table.read(test_file)
+        assert not np.any(["path= was not sp" in str(wl.message)
+                           for wl in warning_lines])
+
+    assert np.all(t1['a'] == t2['a'])
+
+
+@pytest.mark.skipif('not HAS_H5PY')
+def test_read_nopath_multi_tables(tmpdir):
+    test_file = str(tmpdir.join('test.hdf5'))
+    t1 = Table()
+    t1.add_column(Column(name='a', data=[1, 2, 3]))
+    t1.write(test_file, path="the_table")
+    t1.write(test_file, path="the_table_but_different", append=True,
+             overwrite=True)
+    with pytest.warns(AstropyUserWarning,
+                      match="path= was not specified but multiple tables"):
+        t2 = Table.read(test_file)
+
     assert np.all(t1['a'] == t2['a'])
 
 

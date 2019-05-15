@@ -51,7 +51,7 @@ Getting Started
    :maxdepth: 1
 
    install
-   whatsnew/3.2
+   whatsnew/4.0
    importing_astropy
    Example Gallery <generated/examples/index>
    Tutorials <http://tutorials.astropy.org/>
@@ -76,6 +76,7 @@ Data structures and transformations
    nddata/index
    table/index
    time/index
+   timeseries/index
    coordinates/index
    wcs/index
    modeling/index

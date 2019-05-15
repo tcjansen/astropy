@@ -116,10 +116,11 @@ def read_table_hdf5(input, path=None, character_as_bytes=True):
                                  format(path))
             elif len(arrays) > 0:
                 path = arrays[0] if path is None else path + '/' + arrays[0]
-                warnings.warn("path= was not specified but multiple tables"
-                              " are present, reading in first available"
-                              " table (path={0})".format(path),
-                              AstropyUserWarning)
+                if len(arrays) > 1:
+                    warnings.warn("path= was not specified but multiple tables"
+                                  " are present, reading in first available"
+                                  " table (path={0})".format(path),
+                                  AstropyUserWarning)
                 return read_table_hdf5(input, path=path)
 
     elif not isinstance(input, h5py.Dataset):
@@ -215,7 +216,7 @@ def _encode_mixins(tbl):
     # Convert the table to one with no mixins, only Column objects.  This adds
     # meta data which is extracted with meta.get_yaml_from_table.
     with serialize_context_as('hdf5'):
-        encode_tbl = serialize._represent_mixins_as_columns(tbl)
+        encode_tbl = serialize.represent_mixins_as_columns(tbl)
 
     return encode_tbl
 
@@ -238,6 +239,7 @@ def write_table_hdf5(table, output, path=None, compression=False,
     path : str
         The path to which to write the table inside the HDF5 file.
         This should be relative to the input file or group.
+        If not specified, defaults to ``__astropy_table__``.
     compression : bool or str or int
         Whether to compress the table inside the HDF5 file. If set to `True`,
         ``'gzip'`` compression is used. If a string is specified, it should be
@@ -259,7 +261,8 @@ def write_table_hdf5(table, output, path=None, compression=False,
         raise Exception("h5py is required to read and write HDF5 files")
 
     if path is None:
-        raise ValueError("table path should be set via the path= argument")
+        # table is just an arbitrary, hardcoded string here.
+        path = '__astropy_table__'
     elif path.endswith('/'):
         raise ValueError("table path should end with table name, not /")
 
@@ -269,6 +272,13 @@ def write_table_hdf5(table, output, path=None, compression=False,
         group, name = None, path
 
     if isinstance(output, (h5py.File, h5py.Group)):
+        if len(list(output.keys())) > 0 and name == '__astropy_table__':
+            raise ValueError("table path should always be set via the "
+                             "path= argument when writing to existing "
+                             "files")
+        elif name == '__astropy_table__':
+            warnings.warn("table path was not set via the path= argument; "
+                          "using default path {}".format(path))
 
         if group:
             try:

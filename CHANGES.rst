@@ -1,4 +1,4 @@
-3.2 (unreleased)
+4.0 (unreleased)
 ================
 
 New Features
@@ -22,40 +22,17 @@ astropy.cosmology
 astropy.extern
 ^^^^^^^^^^^^^^
 
-- Bundled ``six`` now emits ``AstropyDeprecationWarning``. It will be removed
-  in 4.0. [#8323]
-
 astropy.io.ascii
 ^^^^^^^^^^^^^^^^
-
-- IPAC tables now output data types of ``float`` instead of ``double``, or
-  ``int`` instead of ``long``, based on the column ``dtype.itemsize``. [#8216]
-
-- Update handling of MaskedColumn columns when using the 'data_mask' serialization
-  method.  This can make writing ECSV significantly faster if the data do not
-  actually have any masked values. [#8447]
 
 astropy.io.misc
 ^^^^^^^^^^^^^^^
 
-- Implement serialization of ``TimeDelta`` in ASDF. [#8285]
-
-- Implement serialization of ``EarthLocation`` in ASDF. [#8286]
-
-- Implement serialization of ``SkyCoord`` in ASDF. [#8284]
-
 astropy.io.fits
 ^^^^^^^^^^^^^^^
 
--  Optimize ``Header`` parsing. [#8428]
-
 astropy.io.registry
 ^^^^^^^^^^^^^^^^^^^
-
-- Implement ``Table`` reader and writer for ``ASDF``. [#8261]
-
-- Implement ``Table`` reader and writer methods to wrap ``pandas`` I/O methods
-  for CSV, Fixed width format, HTML, and JSON. [#8381]
 
 astropy.io.votable
 ^^^^^^^^^^^^^^^^^^
@@ -72,42 +49,8 @@ astropy.samp
 astropy.stats
 ^^^^^^^^^^^^^
 
-- Added model inspection methods (``model_parameters()``, ``design_matrix()``,
-  and ``offset()``) to ``astropy.stats.LombScargle`` class [#8397].
-
 astropy.table
 ^^^^^^^^^^^^^
-
-- Removed restriction of initializing a Table from a dict with copy=False. [#8541]
-
-- Improved speed of table row access by a factor of about 2-3.  Improved speed
-  of Table len() by a factor of around 3-10 (depending on the number of columns).
-  [#8494]
-
-- Improved the Table - pandas ``DataFrame`` interface (``to_pandas()`` and
-  ``from_pandas()``).  Mixin columns like ``Time`` and ``Quantity`` can now be
-  converted to pandas by flattening the columns as necessary to plain
-  columns.  ``Time`` and ``TimeDelta`` columns get converted to
-  corresponding pandas date or time delta types.  The ``DataFrame``
-  index is now handled in the conversion methods. [#8247]
-
-- Improved Table performance by reducing unnecessary calls to copy and deepcopy,
-  especially as related to the table and column ``meta`` attributes.  Changed the
-  behavior when slicing a table (either in rows or with a list of column names)
-  so now the sliced output gets a light (key-only) copy of ``meta`` instead of a
-  deepcopy.  Changed the ``Table.meta`` class-level descriptor so that assigning
-  directly to ``meta``, e.g. ``tbl.meta = new_meta`` no longer does a deepcopy
-  and instead just directly assigns the ``new_meta`` object reference.  Changed
-  Table initialization so that input ``meta`` is copied only if ``copy=True``.
-  [#8404]
-
-- Improved Table slicing performance with internal implementation changes
-  related to column attribute access and certain input validation. [#8493]
-
-- Improved ``Table.sort()`` performance by removing ``self[keys]`` from code
-  which is creating deep copies of ``meta`` attribute and adding a new keyword 
-  ``names`` in ``get_index()`` to get index by using a list or tuple containing 
-  names of columns. [#8570] 
 
 astropy.tests
 ^^^^^^^^^^^^^
@@ -115,18 +58,14 @@ astropy.tests
 astropy.time
 ^^^^^^^^^^^^
 
+astropy.timeseries
+^^^^^^^^^^^^^^^^^^
+
 astropy.uncertainty
 ^^^^^^^^^^^^^^^^^^^
 
 astropy.units
 ^^^^^^^^^^^^^
-
-- ``Quantity`` overrides of ``ndarray`` methods such as ``sum``, ``min``,
-  ``max``, which are implemented via reductions, have been removed since they
-  are dealt with in ``Quantity.__array_ufunc__``. This should not affect
-  subclasses, but they may consider doing similarly. [#8316]  Note that this
-  does not include methods that use more complicated python code such as
-  ``mean``, ``std`` and ``var``. [#8370]
 
 astropy.utils
 ^^^^^^^^^^^^^
@@ -136,7 +75,6 @@ astropy.visualization
 
 astropy.wcs
 ^^^^^^^^^^^
-
 
 API Changes
 -----------
@@ -153,9 +91,6 @@ astropy.convolution
 astropy.coordinates
 ^^^^^^^^^^^^^^^^^^^
 
-- ``QuantityAttribute`` no longer has a default value for ``default``.  The
-  previous value of None was misleading as it always was an error. [#8450]
-
 astropy.cosmology
 ^^^^^^^^^^^^^^^^^
 
@@ -165,13 +100,8 @@ astropy.extern
 astropy.io.ascii
 ^^^^^^^^^^^^^^^^
 
-- IPAC tables now output data types of ``float`` instead of ``double``, or
-  ``int`` instead of ``long``, based on the column ``dtype.itemsize``. [#8216]
-
 astropy.io.misc
 ^^^^^^^^^^^^^^^
-
-- Unit equivalencies can now be serialized to ASDF. [#8252]
 
 astropy.io.fits
 ^^^^^^^^^^^^^^^
@@ -197,39 +127,20 @@ astropy.stats
 astropy.table
 ^^^^^^^^^^^^^
 
-- Changed the behavior when slicing a table (either in rows or with a list of column
-  names) so now the sliced output gets a light (key-only) copy of ``meta`` instead of
-  a deepcopy.  Changed the ``Table.meta`` class-level descriptor so that assigning
-  directly to ``meta``, e.g. ``tbl.meta = new_meta`` no longer does a deepcopy
-  and instead just directly assigns the ``new_meta`` object reference. Changed
-  Table initialization so that input ``meta`` is copied only if ``copy=True``.
-  [#8404]
-
-- Added a keyword ``names`` in ``Table.as_array()``.  If provided this specifies
-  a list of column names to include for the returned structured array. [#8532]
-
 astropy.tests
 ^^^^^^^^^^^^^
 
-- Removed ``pytest_plugins`` as they are completely broken for ``pytest>=4``.
-  [#7786]
-
-- Removed the ``astropy.tests.plugins.config`` plugin and removed the
-  ``--astropy-config-dir`` and ``--astropy-cache-dir`` options from
-  testing. Please use caching functionality that is natively in ``pytest``.
-  [#7787, #8489]
-
 astropy.time
 ^^^^^^^^^^^^
+
+astropy.timeseries
+^^^^^^^^^^^^^^^^^^
 
 astropy.uncertainty
 ^^^^^^^^^^^^^^^^^^^
 
 astropy.units
 ^^^^^^^^^^^^^
-
-- Unit equivalencies can now be introspected. [#8252]
-
 
 astropy.utils
 ^^^^^^^^^^^^^
@@ -239,7 +150,6 @@ astropy.visualization
 
 astropy.wcs
 ^^^^^^^^^^^
-
 
 Bug Fixes
 ---------
@@ -292,25 +202,20 @@ astropy.stats
 astropy.table
 ^^^^^^^^^^^^^
 
-- Fixed a bug when initializing from an existing ``Table``.  In this case the
-  input ``meta`` argument was being ignored.  Now the input ``meta``, if
-  supplied, will be used as the ``meta`` for the new ``Table``. [#8404]
-
 astropy.tests
 ^^^^^^^^^^^^^
 
 astropy.time
 ^^^^^^^^^^^^
 
+astropy.timeseries
+^^^^^^^^^^^^^^^^^^
+
 astropy.uncertainty
 ^^^^^^^^^^^^^^^^^^^
 
 astropy.units
 ^^^^^^^^^^^^^
-
-- Added a ``Quantity.to_string`` method to add flexibility to the string formatting
-  of quantities. It produces unadorned or LaTeX strings, and accepts two different
-  sets of delimiters in the latter case: ``inline`` and ``display``. [#8313]
 
 astropy.utils
 ^^^^^^^^^^^^^
@@ -324,20 +229,12 @@ astropy.wcs
 Other Changes and Additions
 ---------------------------
 
-- Update bundled expat to 2.2.6. [#8343]
-
-Installation
-^^^^^^^^^^^^
-
-- We now require setuptools 30.3.0 or later to install the core astropy
-  package. [#8240]
-
-- We now define groups of dependencies that can be installed with pip, e.g.
-  ``pip install astropy[all]`` (to install all optional dependencies). [#8198]
+- Nothing changed yet.
 
 
 
-3.1.3 (unreleased)
+
+3.2.1 (unreleased)
 ==================
 
 Bug fixes
@@ -367,9 +264,6 @@ astropy.io.ascii
 astropy.io.misc
 ^^^^^^^^^^^^^^^
 
-- Fixed bug in ASDF tag that inadvertently introduced dependency on ``pytest``.
-  [#8456]
-
 astropy.io.fits
 ^^^^^^^^^^^^^^^
 
@@ -385,8 +279,149 @@ astropy.modeling
 astropy.nddata
 ^^^^^^^^^^^^^^
 
-- Fixed bug in reading multi-extension FITS files written by earlier versions
-  of ``CCDData``. [#8534]
+astropy.samp
+^^^^^^^^^^^^
+
+astropy.stats
+^^^^^^^^^^^^^
+
+astropy.table
+^^^^^^^^^^^^^
+
+astropy.tests
+^^^^^^^^^^^^^
+
+astropy.time
+^^^^^^^^^^^^
+
+astropy.timeseries
+^^^^^^^^^^^^^^^^^^
+
+astropy.uncertainty
+^^^^^^^^^^^^^^^^^^^
+
+astropy.units
+^^^^^^^^^^^^^
+
+astropy.utils
+^^^^^^^^^^^^^
+
+astropy.visualization
+^^^^^^^^^^^^^^^^^^^^^
+
+astropy.wcs
+^^^^^^^^^^^
+
+
+
+Other Changes and Additions
+---------------------------
+
+
+
+3.2 (unreleased)
+================
+
+New Features
+------------
+
+astropy.config
+^^^^^^^^^^^^^^
+
+astropy.constants
+^^^^^^^^^^^^^^^^^
+
+astropy.convolution
+^^^^^^^^^^^^^^^^^^^
+
+astropy.coordinates
+^^^^^^^^^^^^^^^^^^^
+
+- New ``BarycentricMeanEcliptic``, ``HeliocentricTrueEcliptic`` and
+  ``GeocentricTrueEcliptic`` frames.
+  The ecliptic frames are no longer considered experimental. [#8394]
+
+- The default time scale for epochs like 'J2000' or 'B1975' is now "tt",
+  which is the correct one for 'J2000' and avoids leap-second warnings
+  for epochs in the far future or past. [#8600]
+
+astropy.cosmology
+^^^^^^^^^^^^^^^^^
+
+astropy.extern
+^^^^^^^^^^^^^^
+
+- Bundled ``six`` now emits ``AstropyDeprecationWarning``. It will be removed
+  in 4.0. [#8323]
+
+astropy.io.ascii
+^^^^^^^^^^^^^^^^
+
+- IPAC tables now output data types of ``float`` instead of ``double``, or
+  ``int`` instead of ``long``, based on the column ``dtype.itemsize``. [#8216]
+
+- Update handling of MaskedColumn columns when using the 'data_mask' serialization
+  method.  This can make writing ECSV significantly faster if the data do not
+  actually have any masked values. [#8447]
+
+- Fixed a bug that caused newlines to be incorrect when writing out ASCII tables
+  on Windows (they were ``\r\r\n`` instead of ``\r\n``). [#8659]
+
+astropy.io.misc
+^^^^^^^^^^^^^^^
+
+- Implement serialization of ``TimeDelta`` in ASDF. [#8285]
+
+- Implement serialization of ``EarthLocation`` in ASDF. [#8286]
+
+- Implement serialization of ``SkyCoord`` in ASDF. [#8284]
+
+- Support serialization of Astropy tables with mixin columns in ASDF. [#8337]
+
+- No warnings when reading HDF5 files with only one table and no ``path=``
+  argument [#8483]
+
+- The HDF5 writer will now create a default table instead of raising an
+  exception when ``path=`` is not specified and when writing to empty/new HDF5
+  files. [#8553]
+
+astropy.io.fits
+^^^^^^^^^^^^^^^
+
+- Optimize parsing of cards within the ``Header`` class. [#8428]
+
+- Optimize the parsing of headers to get the structural keywords that are
+  needed to find extensions. Thanks to this, getting a random HDU from a file
+  with many extensions is much faster than before, in particular when the
+  extension headers contain many keywords. [#8502]
+
+-  Change behavior of FITS undefined value in ``Header`` such that ``None``
+   is used in Python to represent FITS undefined when using dict interface.
+   ``Undefined`` can also be assigned and is translated to ``None``.
+   Previously setting a header card value to ``None`` resulted in an
+   empty string field rather than a FITS undefined value. [#8572]
+
+astropy.io.registry
+^^^^^^^^^^^^^^^^^^^
+
+- Implement ``Table`` reader and writer for ``ASDF``. [#8261]
+
+- Implement ``Table`` reader and writer methods to wrap ``pandas`` I/O methods
+  for CSV, Fixed width format, HTML, and JSON. [#8381]
+
+- Add ``help()`` and ``list_formats()`` methods to unified I/O ``read`` and
+  ``write`` methods. For example ``Table.read.help()`` gives help on available
+  ``Table`` read formats and ``Table.read.help('fits')`` gives detailed
+  help on the arguments for reading FITS table file. [#8255]
+
+astropy.io.votable
+^^^^^^^^^^^^^^^^^^
+
+astropy.modeling
+^^^^^^^^^^^^^^^^
+
+astropy.nddata
+^^^^^^^^^^^^^^
 
 astropy.samp
 ^^^^^^^^^^^^
@@ -396,6 +431,326 @@ astropy.stats
 
 astropy.table
 ^^^^^^^^^^^^^
+
+- Initializing a table with ``Table(rows=...)``, if the first item is an ``OrderedDict``,
+  now uses the column order of the first row. [#8587]
+
+- Added new pprint_all() and pformat_all() methods to Table. These two new
+  methods print the entire table by default. [#8577]
+
+- Removed restriction of initializing a Table from a dict with copy=False. [#8541]
+
+- Improved speed of table row access by a factor of about 2-3.  Improved speed
+  of Table len() by a factor of around 3-10 (depending on the number of columns).
+  [#8494]
+
+- Improved the Table - pandas ``DataFrame`` interface (``to_pandas()`` and
+  ``from_pandas()``).  Mixin columns like ``Time`` and ``Quantity`` can now be
+  converted to pandas by flattening the columns as necessary to plain
+  columns.  ``Time`` and ``TimeDelta`` columns get converted to
+  corresponding pandas date or time delta types.  The ``DataFrame``
+  index is now handled in the conversion methods. [#8247]
+- Added ``rename_columns`` method to rename multiple columns in one call. [#5159, #8070]
+
+
+- Improved Table performance by reducing unnecessary calls to copy and deepcopy,
+  especially as related to the table and column ``meta`` attributes.  Changed the
+  behavior when slicing a table (either in rows or with a list of column names)
+  so now the sliced output gets a light (key-only) copy of ``meta`` instead of a
+  deepcopy.  Changed the ``Table.meta`` class-level descriptor so that assigning
+  directly to ``meta``, e.g. ``tbl.meta = new_meta`` no longer does a deepcopy
+  and instead just directly assigns the ``new_meta`` object reference.  Changed
+  Table initialization so that input ``meta`` is copied only if ``copy=True``.
+  [#8404]
+
+- Improved Table slicing performance with internal implementation changes
+  related to column attribute access and certain input validation. [#8493]
+
+- Added ``reverse`` argument to the ``sort`` and ``argsort`` methods to allow
+  sorting in reverse order. [#8528]
+
+- Improved ``Table.sort()`` performance by removing ``self[keys]`` from code
+  which is creating deep copies of ``meta`` attribute and adding a new keyword
+  ``names`` in ``get_index()`` to get index by using a list or tuple containing
+  names of columns. [#8570]
+
+astropy.tests
+^^^^^^^^^^^^^
+
+astropy.time
+^^^^^^^^^^^^
+
+astropy.timeseries
+^^^^^^^^^^^^^^^^^^
+
+- Added a new astropy.timeseries sub-package to represent and manipulate
+  sampled and binned time series. [#8540]
+
+- The ``BoxLeastSquares`` and ``LombScargle`` classes have been moved to
+  ``astropy.timeseries.periodograms`` from ``astropy.stats``. [#8591]
+
+- Added the ability to provide absolute ``Time`` objects to the
+  ``BoxLeastSquares`` and ``LombScargle`` periodogram classes. [#8599]
+
+- Added model inspection methods (``model_parameters()``, ``design_matrix()``,
+  and ``offset()``) to ``astropy.timeseries.LombScargle`` class [#8397].
+
+astropy.uncertainty
+^^^^^^^^^^^^^^^^^^^
+
+astropy.units
+^^^^^^^^^^^^^
+
+- ``Quantity`` overrides of ``ndarray`` methods such as ``sum``, ``min``,
+  ``max``, which are implemented via reductions, have been removed since they
+  are dealt with in ``Quantity.__array_ufunc__``. This should not affect
+  subclasses, but they may consider doing similarly. [#8316]  Note that this
+  does not include methods that use more complicated python code such as
+  ``mean``, ``std`` and ``var``. [#8370]
+
+astropy.utils
+^^^^^^^^^^^^^
+
+astropy.visualization
+^^^^^^^^^^^^^^^^^^^^^
+- Added ``CompositeStretch``, which inherits from ``CompositeTransform`` and
+  also ``BaseStretch`` so that it can be used with ``ImageNormalize``. [#8564]
+
+- Added a ``log_a`` argument to the ``simple_norm`` method. Similar to the
+  exposing of the ``asinh_a`` argument for ``AsinhStretch``, the new
+  ``log_a`` argument is now exposed for ``LogStretch``. [#8436]
+
+astropy.wcs
+^^^^^^^^^^^
+
+- WCSLIB was updated to v 6.2.
+  This adds support for time-related WCS keywords (WCS Paper VII).
+  FITS headers containing ``Time`` axis are parsed and the axis is included in
+  the WCS object. [#8592]
+
+- The ``OBSGEO`` attribute as expanded to 6 members - ``XYZLBH``. [#8592]
+
+- Added a new class ``SlicedLowLevelWCS`` in ``astropy.wcs.wcsapi`` that can be
+  used to slice any WCS that conforms to the ``BaseLowLevelWCS`` API. [#8546]
+
+- Updated implementation of ``WCS.__getitem__`` and ``WCS.slice`` to now return
+  a ``SlicedLowLevelWCS`` rather than raising an error when reducing the
+  dimensionality of the WCS. [#8546]
+
+API Changes
+-----------
+
+astropy.config
+^^^^^^^^^^^^^^
+
+astropy.constants
+^^^^^^^^^^^^^^^^^
+
+astropy.convolution
+^^^^^^^^^^^^^^^^^^^
+
+astropy.coordinates
+^^^^^^^^^^^^^^^^^^^
+
+- ``QuantityAttribute`` no longer has a default value for ``default``.  The
+  previous value of None was misleading as it always was an error. [#8450]
+
+- The default J2000 has been changed to use be January 1, 2000 12:00 TT instead
+  of UTC.  This is more in line with convention. [#8594]
+
+astropy.cosmology
+^^^^^^^^^^^^^^^^^
+
+astropy.extern
+^^^^^^^^^^^^^^
+
+astropy.io.ascii
+^^^^^^^^^^^^^^^^
+
+- IPAC tables now output data types of ``float`` instead of ``double``, or
+  ``int`` instead of ``long``, based on the column ``dtype.itemsize``. [#8216]
+
+astropy.io.misc
+^^^^^^^^^^^^^^^
+
+- Unit equivalencies can now be serialized to ASDF. [#8252]
+
+astropy.io.fits
+^^^^^^^^^^^^^^^
+
+astropy.io.registry
+^^^^^^^^^^^^^^^^^^^
+
+astropy.io.votable
+^^^^^^^^^^^^^^^^^^
+
+astropy.modeling
+^^^^^^^^^^^^^^^^
+
+- Composition of model classes is deprecated and will be removed in 4.0.
+  Composition of model instances remain unaffected. [#8234, #8408]
+
+astropy.nddata
+^^^^^^^^^^^^^^
+
+astropy.samp
+^^^^^^^^^^^^
+
+astropy.stats
+^^^^^^^^^^^^^
+
+- The ``BoxLeastSquares`` and ``LombScargle`` classes have been moved to the
+  ``astropy.timeseries.periodograms`` module and will now emit a deprecation
+  warning when imported from ``astropy.stats``. [#8591]
+
+astropy.table
+^^^^^^^^^^^^^
+
+- Converting an empty table to an array using ``as_array`` method now returns
+  an empty array instead of ``None``. [#8647]
+
+- Changed the behavior when slicing a table (either in rows or with a list of column
+  names) so now the sliced output gets a light (key-only) copy of ``meta`` instead of
+  a deepcopy.  Changed the ``Table.meta`` class-level descriptor so that assigning
+  directly to ``meta``, e.g. ``tbl.meta = new_meta`` no longer does a deepcopy
+  and instead just directly assigns the ``new_meta`` object reference. Changed
+  Table initialization so that input ``meta`` is copied only if ``copy=True``.
+  [#8404]
+
+- Added a keyword ``names`` in ``Table.as_array()``.  If provided this specifies
+  a list of column names to include for the returned structured array. [#8532]
+
+astropy.tests
+^^^^^^^^^^^^^
+
+- Removed ``pytest_plugins`` as they are completely broken for ``pytest>=4``.
+  [#7786]
+
+- Removed the ``astropy.tests.plugins.config`` plugin and removed the
+  ``--astropy-config-dir`` and ``--astropy-cache-dir`` options from
+  testing. Please use caching functionality that is natively in ``pytest``.
+  [#7787, #8489]
+
+astropy.time
+^^^^^^^^^^^^
+
+- The default time scale for epochs like 'J2000' or 'B1975' is now "tt",
+  which is the correct one for 'J2000' and avoids leap-second warnings
+  for epochs in the far future or past. [#8600]
+
+astropy.uncertainty
+^^^^^^^^^^^^^^^^^^^
+
+astropy.units
+^^^^^^^^^^^^^
+
+- Unit equivalencies can now be introspected. [#8252]
+
+astropy.wcs
+^^^^^^^^^^^
+
+- The ``world_to_pixel``, ``world_to_array_index*``, ``pixel_to_world*`` and
+  ``array_index_to_world*`` methods now all consistently return scalars, arrays,
+  or objects not wrapped in a one-element tuple/list when only one scalar,
+  array, or object (as was previously already the case for ``WCS.pixel_to_world``
+  and ``WCS.array_index_to_world``). [#8663]
+
+astropy.utils
+^^^^^^^^^^^^^
+
+- It is now possible to control the number of cores used by ``ProgressBar.map``
+  by passing a positive integer as the ``multiprocess`` keyword argument. Use
+  ``True`` to use all cores. [#8083]
+
+astropy.visualization
+^^^^^^^^^^^^^^^^^^^^^
+
+astropy.wcs
+^^^^^^^^^^^
+
+
+Bug Fixes
+---------
+
+astropy.config
+^^^^^^^^^^^^^^
+
+astropy.constants
+^^^^^^^^^^^^^^^^^
+
+astropy.convolution
+^^^^^^^^^^^^^^^^^^^
+
+astropy.coordinates
+^^^^^^^^^^^^^^^^^^^
+
+- ``BarycentricTrueEcliptic``, ``HeliocentricTrueEcliptic`` and
+  ``GeocentricTrueEcliptic`` now use the correct transformation
+  (including nutation), whereas the new ``*MeanEcliptic`` classes
+  use the nutation-free transformation. [#8394]
+
+astropy.cosmology
+^^^^^^^^^^^^^^^^^
+
+astropy.extern
+^^^^^^^^^^^^^^
+
+astropy.io.ascii
+^^^^^^^^^^^^^^^^
+
+- Fixed a bug where an exception was raised when writing a table which includes
+  mixin columns (e.g. a Quantity column) and the output format was specified
+  using the ``formats`` keyword. [#8681]
+
+astropy.io.misc
+^^^^^^^^^^^^^^^
+
+- Fixed bug in ASDF tag that inadvertently introduced dependency on ``pytest``.
+  [#8456]
+
+astropy.io.fits
+^^^^^^^^^^^^^^^
+
+astropy.io.registry
+^^^^^^^^^^^^^^^^^^^
+
+astropy.io.votable
+^^^^^^^^^^^^^^^^^^
+
+astropy.modeling
+^^^^^^^^^^^^^^^^
+
+- Fixed slowness for certain compound models consisting of large numbers
+  of multi-input models [#8338, #8349]
+
+- Fixed bugs in fitting of compound models with units. [#8369]
+
+astropy.nddata
+^^^^^^^^^^^^^^
+
+- Fixed bug in reading multi-extension FITS files written by earlier versions
+  of ``CCDData``. [#8534]
+
+- Fixed two errors in the way ``CCDData`` handles FITS files with WCS in the
+  header. Some of the WCS keywords that should have been removed from the
+  header were not, potentially leading to FITS files with inconsistent
+  WCS. [#8602]
+
+astropy.samp
+^^^^^^^^^^^^
+
+astropy.stats
+^^^^^^^^^^^^^
+
+astropy.table
+^^^^^^^^^^^^^
+
+- Fixed a bug when initializing from an empty list: ``Table([])`` no longer
+  results in a crash. [#8647]
+
+- Fixed a bug when initializing from an existing ``Table``.  In this case the
+  input ``meta`` argument was being ignored.  Now the input ``meta``, if
+  supplied, will be used as the ``meta`` for the new ``Table``. [#8404]
 
 astropy.tests
 ^^^^^^^^^^^^^
@@ -426,6 +781,16 @@ astropy.uncertainty
 astropy.units
 ^^^^^^^^^^^^^
 
+- Added a ``Quantity.to_string`` method to add flexibility to the string formatting
+  of quantities. It produces unadorned or LaTeX strings, and accepts two different
+  sets of delimiters in the latter case: ``inline`` and ``display``. [#8313]
+
+- Ensure classes that mimic quantities by having a ``unit`` attribute and/or
+  ``to`` and ``to_value`` methods can be properly used to initialize ``Quantity``
+  or set ``Quantity`` instance items. [#8535]
+
+- Add support for ``<<`` to create logarithmic units. [#8290]
+
 astropy.utils
 ^^^^^^^^^^^^^
 
@@ -435,9 +800,20 @@ astropy.visualization
 astropy.wcs
 ^^^^^^^^^^^
 
+- Added a ``PyUnitListProxy_richcmp`` method in ``UnitListProxy`` class to enable
+  ``WCS.wcs.cunit`` equality testing. It helps to check whether the two instances of
+  ``WCS.wcs.cunit`` are equal or not by comparing the data members of
+  ``UnitListProxy`` class [#8480]
+
+- Fixed ``SlicedLowLevelWCS`` when ``array_shape`` is ``None``. [#8649]
+
 
 Other Changes and Additions
 ---------------------------
+
+- Update bundled expat to 2.2.6. [#8343]
+
+- Added instructions for uploading releases to Zenodo. [#8395]
 
 - The bug fixes to the behaviour of ``TimeDelta`` for multiplcation and
   division, which ensure that the output is now always a ``TimeDelta`` if the
@@ -453,6 +829,16 @@ Other Changes and Additions
   an ``OperandTypeError``, but rather result in a ``Quantity`` with units of
   time squared (division already correctly resulted in a dimensionless
   ``Quantity``). [#8356]
+
+Installation
+^^^^^^^^^^^^
+
+- We now require setuptools 30.3.0 or later to install the core astropy
+  package. [#8240]
+
+- We now define groups of dependencies that can be installed with pip, e.g.
+  ``pip install astropy[all]`` (to install all optional dependencies). [#8198]
+
 
 
 3.1.2 (2019-02-23)
@@ -695,6 +1081,11 @@ astropy.table
 
 - Added support for stacking ``Column``, mixin column (e.g. ``Quantity``,
   ``Time``) or column-like objects. [#7674]
+
+- Expose ``represent_mixins_as_columns`` as a public function in the
+  ``astropy.table`` subpackage.  This previously-private function in the
+  ``table.serialize`` module is used to represent mixin columns in a Table as
+  one or more plain Column objects. [#7729]
 
 - Added support for inserting a row into a Table that has ``Time`` or
   ``TimeDelta`` column(s). [#7897]
@@ -1964,6 +2355,9 @@ astropy.units
 ^^^^^^^^^^^^^
 
 - Fix parsing of numerical powers in FITS-compatible units. [#8251]
+
+- Fix ``take`` when one gets only a single element from a ``Quantity``,
+  ensuring it returns a ``Quantity`` rather than a scalar. [#8617]
 
 astropy.utils
 ^^^^^^^^^^^^^

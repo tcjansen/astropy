@@ -13,7 +13,6 @@ of the same type of model, but with potentially different values of the
 parameters in each model making up the set.
 """
 
-
 import abc
 import copy
 import copyreg
@@ -27,7 +26,6 @@ from collections import defaultdict, OrderedDict
 from contextlib import suppress
 from inspect import signature
 from itertools import chain, islice
-from functools import partial
 
 import numpy as np
 
@@ -36,8 +34,8 @@ from astropy.table import Table
 from astropy.units import Quantity, UnitsError, dimensionless_unscaled
 from astropy.units.utils import quantity_asanyarray
 from astropy.utils import (sharedmethod, find_current_module,
-                     InheritDocstrings, OrderedDescriptorContainer,
-                     check_broadcast, IncompatibleShapeError, isiterable)
+                           InheritDocstrings, OrderedDescriptorContainer,
+                           check_broadcast, IncompatibleShapeError, isiterable)
 from astropy.utils.codegen import make_function_with_signature
 from astropy.utils.exceptions import AstropyDeprecationWarning
 from .utils import (combine_labels, make_binary_operator_eval,
@@ -70,9 +68,18 @@ def _model_oper(oper, **kwargs):
     # used in the class definition of _CompoundModelMeta since
     # _CompoundModelMeta has not been defined yet.
 
-    # Perform an arithmetic operation on two models.
-    return lambda left, right: _CompoundModelMeta._from_operator(oper, left,
-                                                                 right, **kwargs)
+    def _opfunc(left, right):
+        # Deprecation is for https://github.com/astropy/astropy/issues/8234
+        if not (isinstance(left, Model) and isinstance(right, Model)):
+            warnings.warn(
+                'Composition of model classes will be removed in 4.0'
+                '(but composition of model instances is not affected)',
+                AstropyDeprecationWarning)
+
+        # Perform an arithmetic operation on two models.
+        return _CompoundModelMeta._from_operator(oper, left, right, **kwargs)
+
+    return _opfunc
 
 
 class _ModelMeta(OrderedDescriptorContainer, InheritDocstrings, abc.ABCMeta):
@@ -332,7 +339,7 @@ class _ModelMeta(OrderedDescriptorContainer, InheritDocstrings, abc.ABCMeta):
 
             kwargs.append((param.name, param.default))
 
-        __call__ = make_function_with_signature(__call__, ('self',), kwargs)
+        __call__.__signature__ = sig
 
         return type(str('_{0}BoundingBox'.format(cls.name)), (_BoundingBox,),
                     {'__call__': __call__})
@@ -1212,7 +1219,18 @@ class Model(metaclass=_ModelMeta):
                 parameter.value = parameter.quantity.to(unit).value
                 parameter._set_unit(None, force=True)
 
+        if isinstance(model, _CompoundModel):
+            model.strip_units_from_tree()
+
         return model
+
+    def strip_units_from_tree(self):
+        for item in self._tree.traverse_inorder():
+            if isinstance(item.value, Model):
+                for parname in item.value.param_names:
+                    par = getattr(item.value, parname)
+                    par._set_unit(None, force=True)
+                    setattr(item.value, parname, par)
 
     def with_units_from_data(self, **kwargs):
         """
@@ -2842,10 +2860,6 @@ class _CompoundModel(Model, metaclass=_CompoundModelMeta):
 
         if d:  # Note that if d is empty, we just return None
             return d
-
-    @property
-    def _supports_unit_fitting(self):
-        return False
 
     @property
     def input_units_allow_dimensionless(self):

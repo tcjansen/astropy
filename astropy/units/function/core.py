@@ -6,7 +6,7 @@ from abc import ABCMeta, abstractmethod
 
 import numpy as np
 
-from astropy.units import (Unit, UnitBase, UnitsError, UnitTypeError,
+from astropy.units import (Unit, UnitBase, UnitsError, UnitTypeError, UnitConversionError,
                            dimensionless_unscaled, Quantity)
 
 __all__ = ['FunctionUnitBase', 'FunctionQuantity']
@@ -98,8 +98,8 @@ class FunctionUnitBase(metaclass=ABCMeta):
             if (not isinstance(self._physical_unit, UnitBase) or
                 self._physical_unit.is_equivalent(
                     self._default_function_unit)):
-                raise ValueError("Unit {0} is not a physical unit."
-                                 .format(self._physical_unit))
+                raise UnitConversionError("Unit {0} is not a physical unit."
+                                          .format(self._physical_unit))
 
         if function_unit is None:
             self._function_unit = self._default_function_unit
@@ -110,12 +110,11 @@ class FunctionUnitBase(metaclass=ABCMeta):
             if function_unit.is_equivalent(self._default_function_unit):
                 self._function_unit = function_unit
             else:
-                raise ValueError("Cannot initialize '{0}' instance with "
-                                 "function unit '{1}', as it is not "
-                                 "equivalent to default function unit '{2}'."
-                                 .format(self.__class__.__name__,
-                                         function_unit,
-                                         self._default_function_unit))
+                raise UnitConversionError(
+                    "Cannot initialize '{0}' instance with function unit '{1}'"
+                    ", as it is not equivalent to default function unit '{2}'."
+                    .format(self.__class__.__name__, function_unit,
+                            self._default_function_unit))
 
     def _copy(self, physical_unit=None):
         """Copy oneself, possibly with a different physical unit."""
@@ -252,9 +251,19 @@ class FunctionUnitBase(metaclass=ABCMeta):
             return self.function_unit.to(other_function_unit, value)
 
         else:
-            # when other is not a function unit
-            return self.physical_unit.to(other, self.to_physical(value),
-                                         equivalencies)
+            try:
+                # when other is not a function unit
+                return self.physical_unit.to(other, self.to_physical(value),
+                                             equivalencies)
+            except UnitConversionError as e:
+                if self.function_unit == Unit('mag'):
+                    # One can get to raw magnitudes via math that strips the dimensions off.
+                    # Include extra information in the exception to remind users of this.
+                    msg = "Did you perhaps subtract magnitudes so the unit got lost?"
+                    e.args += (msg,)
+                    raise e
+                else:
+                    raise
 
     def is_unity(self):
         return False
@@ -266,6 +275,13 @@ class FunctionUnitBase(metaclass=ABCMeta):
 
     def __ne__(self, other):
         return not self.__eq__(other)
+
+    def __rlshift__(self, other):
+        """Unit converstion operator ``<<``"""
+        try:
+            return self._quantity_class(other, self, copy=False, subok=True)
+        except Exception:
+            return NotImplemented
 
     def __mul__(self, other):
         if isinstance(other, (str, UnitBase, FunctionUnitBase)):
@@ -626,6 +642,15 @@ class FunctionQuantity(Quantity):
 
     def __le__(self, other):
         return self._comparison(other, self.value.__le__)
+
+    def __lshift__(self, other):
+        """Unit converstion operator `<<`"""
+        try:
+            other = Unit(other, parse_strict='silent')
+        except UnitTypeError:
+            return NotImplemented
+
+        return self.__class__(self, other, copy=False, subok=True)
 
     # Ensure Quantity methods are used only if they make sense.
     def _wrap_function(self, function, *args, **kwargs):
